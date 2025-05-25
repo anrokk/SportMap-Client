@@ -1,5 +1,5 @@
 import axios from "axios";
-import { type LoginInfo, type RegisterInfo, JwtResponse } from '@/types';
+import { type LoginCredentials, type RegisterInfo, type JwtResponse } from '@/types';
 
 const API_BASE_URL = 'https://sportmap.akaver.com/api/v1/Account';
 
@@ -12,7 +12,7 @@ const authApiClient = axios.create({
 
 export const authService = {
 
-    login: async (credentials: LoginInfo): Promise<JwtResponse> => {
+    login: async (credentials: LoginCredentials): Promise<JwtResponse> => {
         try {
             const response = await authApiClient.post<JwtResponse>('/Login', credentials);
             return response.data;

@@ -128,3 +128,9 @@ export interface ProblemMessagesDto { // Renamed for clarity as a DTO
 }
 
 
+export interface UserProfile {
+    id: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+}
