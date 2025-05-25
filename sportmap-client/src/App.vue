@@ -46,73 +46,89 @@ const handleLogout = () => {
 </template>
 
 <style scoped>
-.app-header {
-  background-color: #f8f9fa;
-  padding: 1rem 2rem;
+#app-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #e7e7e7;
-  line-height: 1.5;
+  flex-direction: column; 
+  min-height: 100vh;
+}
+
+.app-header {
+  background-color: #343a40; 
+  padding: 0.75rem 2rem;   
+  display: flex;          
+  justify-content: space-between; 
+  align-items: center;    
+  color: #f8f9fa;          
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .app-title {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #333;
+  color: #ffffff;
   text-decoration: none;
-}
-
-.logo-container {
-  /* Add styles if you have a logo image */
 }
 
 .navigation-links a,
-.navigation-links button {
+.navigation-links button,
+.navigation-links .user-greeting {
   margin-left: 1rem;
   text-decoration: none;
-  color: #007bff;
+  color: #adb5bd; 
   padding: 0.5rem 0.75rem;
   border-radius: 0.25rem;
-  transition: background-color 0.2s ease-in-out;
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  font-size: 0.95rem;
 }
 
 .navigation-links a:hover,
 .navigation-links button:hover {
-  background-color: #e9ecef;
-  color: #0056b3;
+  color: #ffffff; 
+  background-color: #495057; 
 }
 
+.navigation-links .router-link-exact-active { 
+  color: #ffffff;
+  font-weight: bold;
+  background-color: #007bff; 
+}
+
+
 .navigation-links button.logout-button {
-  background-color: transparent;
-  border: 1px solid #007bff;
+  background-color: #dc3545; 
+  border: none;
+  color: white;
   cursor: pointer;
 }
 
 .navigation-links button.logout-button:hover {
-  background-color: #007bff;
-  color: white;
+  background-color: #c82333; 
 }
 
 .user-greeting {
-  margin-left: 1rem;
-  color: #555;
+  color: #e9ecef; 
+  padding-right: 0; 
 }
 
 .main-content {
-  padding: 1rem 2rem; /* Add some padding around the main content area */
-  min-height: calc(100vh - 120px); /* Example: Adjust based on header/footer height */
+  flex-grow: 1; 
+  padding: 1.5rem 2rem; 
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
   text-align: center;
   padding: 1rem;
   background-color: #f8f9fa;
   border-top: 1px solid #e7e7e7;
   font-size: 0.9rem;
   color: #6c757d;
-  position: relative; /* Or fixed/sticky depending on desired behavior */
-  bottom: 0;
   width: 100%;
+  box-sizing: border-box;
 }
 </style>
