@@ -9,12 +9,12 @@ const isAuthenticated = computed(() => authStore.isAuthenticated);
 const userDisplayName = computed(() => authStore.userDisplayName);
 
 onMounted(() => {
-  authStore.InitializeAuthFromStorage();
+  authStore.initializeAuthFromStorage();
 });
 
 const handleLogout = () => {
-  authStore.Logout();
-}
+  authStore.logout();
+};
 </script>
 
 <template>
@@ -55,18 +55,19 @@ const handleLogout = () => {
 .app-header {
   background-color: #343a40; 
   padding: 0.75rem 2rem;   
-  display: flex;          
+  display: flex;           
   justify-content: space-between; 
   align-items: center;    
-  color: #f8f9fa;          
+  color: #f8f9fa;         
   width: 100%;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .app-title {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #ffffff;
+  color: #ffffff; 
   text-decoration: none;
 }
 
@@ -119,9 +120,6 @@ const handleLogout = () => {
 }
 
 .app-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
   text-align: center;
   padding: 1rem;
   background-color: #f8f9fa;
@@ -130,5 +128,7 @@ const handleLogout = () => {
   color: #6c757d;
   width: 100%;
   box-sizing: border-box;
+  margin-top: auto; 
+  flex-shrink: 0;
 }
 </style>

@@ -200,7 +200,5 @@ export const useAuthStore = defineStore("auth", {
                 this.logoutCleanup();
             }
         }
-
-        
-    },
+    }
 });

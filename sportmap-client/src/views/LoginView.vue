@@ -70,8 +70,8 @@ const handleLogin = async () => {
   justify-content: center;
   align-items: flex-start; 
   padding-top: 5vh; 
-  min-height: calc(100vh - 180px); 
   background-color: #f4f7f6;
+  box-sizing: border-box;
 }
 
 .login-container {
