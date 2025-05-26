@@ -3,8 +3,6 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useGpsDataStore } from '@/stores/gpsData';
 import { useAuthStore } from '@/stores/auth';
 import MapDisplay from '@/components/MapDisplay.vue';
-import type { GpsSessionView } from '@/types';
-import { convertTypeAcquisitionFromJson } from 'typescript';
 
 const gpsDataStore = useGpsDataStore();
 const authStore = useAuthStore();
