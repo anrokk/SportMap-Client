@@ -1,28 +1,38 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue';
-import L, { type Map as LeafletMap, type Polyline as LeafletPolyline, type LatLngExpression, type LatLngBounds, map } from 'leaflet';
+import L, {
+    type Map as LeafletMap,
+    type Polyline as LeafletPolyline,
+    type LatLngExpression,
+    type LatLngBounds,
+    type FeatureGroup
+} from 'leaflet';
 
 const props = defineProps<{
-    tracks: Array<Array<[number, number]>>
+    tracks: Array<Array<[number, number]>>;
 }>();
 
-const mapContainerRef = ref<HTMLElement | null>(null); 
-const leafletMap = ref<LeafletMap | null>(null); 
-const trackPolylines = ref<LeafletPolyline[]>([]); 
+const mapContainerRef = ref<HTMLElement | null>(null);
+const leafletMap = ref<LeafletMap | null>(null);
+const tracksLayerGroup = ref<FeatureGroup | null>(null);
+
+const defaultTrackColor = 'blue';
 
 const initializeMap = () => {
     if (mapContainerRef.value && !leafletMap.value){
-        const mapInstance: LeafletMap = L.map(mapContainerRef.value, { }).setView([59.4370, 24.7536], 10); //tallinn
+        const mapInstance: LeafletMap = L.map(mapContainerRef.value).setView([59.4370, 24.7536], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            maxZoom: 19,
+            maxZoom: 19
         }).addTo(mapInstance);
 
         leafletMap.value = mapInstance;
-        drawTracksOnMap();
-    } else if (mapContainerRef.value && leafletMap.value){
-        drawTracksOnMap();
+        tracksLayerGroup.value = L.featureGroup().addTo(mapInstance);
+
+        if (props.tracks && props.tracks.length > 0){
+            drawTracksOnMap();
+        }
     }
 };
 
@@ -32,101 +42,82 @@ onMounted(() => {
     });
 });
 
-watch(() => props.tracks,
-    () => {
-        if (leafletMap.value) {
-            drawTracksOnMap();
-        } else {
-            nextTick(() => {
-                initializeMap();
-            });
-        }
-    },
-    { deep: true, immediate: false }
+watch(() => props.tracks, () => {
+     if (leafletMap.value && tracksLayerGroup.value) {
+        drawTracksOnMap();
+    } else {
+        nextTick(() => {
+            initializeMap();
+        });
+    }
+}, { deep: true }
 );
 
 const drawTracksOnMap = () => {
-    const currentMapInstance = leafletMap.value;
-    if (!currentMapInstance) {
-        console.warn("Map instance not available for drawing tracks.");
+    const currentMap = leafletMap.value;
+    const layerGroup = tracksLayerGroup.value;
+
+    if (!currentMap || !layerGroup){
+        console.warn('Map or layer group is not initialized');
         return;
     }
-    console.log("Drawing tracks. Current tracks prop:", JSON.parse(JSON.stringify(props.tracks)));
 
-    trackPolylines.value.forEach(polyline => {
-        if (currentMapInstance.hasLayer(polyline as LeafletPolyline)) {
-            currentMapInstance.removeLayer(polyline as LeafletPolyline);
-        }
-    });
-    trackPolylines.value = [];
+    layerGroup.clearLayers();
 
-    if (props.tracks && props.tracks.length > 0) {
-        const allTrackLatLngsForBounds: L.LatLng[] = [];
+    if (props.tracks && props.tracks.length > 0){
+        let hasValidTracksToDraw = false;
+        props.tracks.forEach(trackCoordinates => {
+            if (trackCoordinates && trackCoordinates.length > 1){
+                const latLngs: LatLngExpression[] = trackCoordinates
+                .filter(coord => typeof coord[0] === 'number' && typeof coord[1] === 'number' && !isNaN(coord[0]) && !isNaN(coord[1]))
+                .map(coord => L.latLng(coord[0], coord[1]));
 
-        props.tracks.forEach((trackCoordinates, trackIndex) => {
-            if (trackCoordinates && trackCoordinates.length > 1) {
-                const latLngExpressions: LatLngExpression[] = trackCoordinates.map(coord => L.latLng(coord[0], coord[1]));
-                
-                let polyline: LeafletPolyline = L.polyline(latLngExpressions, {
-                    color: getRandomColor(trackIndex),
-                    weight: 3,
-                    opacity: 0.7,
-                });
-                
-                polyline = polyline.addTo(currentMapInstance as L.Map);
-                trackPolylines.value.push(polyline);
-
-                latLngExpressions.forEach(ll => {
-                    if (ll instanceof L.LatLng) {
-                        allTrackLatLngsForBounds.push(ll);
-                    } else if (Array.isArray(ll) && ll.length === 2) {
-                        allTrackLatLngsForBounds.push(L.latLng(ll[0], ll[1]));
-                    }
-                });
+                if (latLngs.length > 1){
+                    const polyline: LeafletPolyline = L.polyline(latLngs, {
+                        color: defaultTrackColor,
+                        weight: 3,
+                        opacity: 0.7
+                    });
+                    layerGroup.addLayer(polyline);
+                    hasValidTracksToDraw = true;
+                }
             }
         });
 
-        if (trackPolylines.value.length > 0 && allTrackLatLngsForBounds.length > 0) {
-            const bounds: LatLngBounds = L.latLngBounds(allTrackLatLngsForBounds);
-            if (bounds.isValid()) {
-                const paddedBounds: LatLngBounds = bounds.pad(0.1);
-                currentMapInstance.fitBounds(paddedBounds);
-            } else if (allTrackLatLngsForBounds.length === 1) {
-                currentMapInstance.setView(allTrackLatLngsForBounds[0], currentMapInstance.getZoom() > 13 ? currentMapInstance.getZoom() : 13);
+        if (hasValidTracksToDraw){
+            const bounds: LatLngBounds = layerGroup.getBounds();
+            if (bounds.isValid()){
+                currentMap.invalidateSize();
+                currentMap.fitBounds(bounds.pad(0.1));
+            } else {
+                currentMap.setView([59.4370, 24.7536], 7); //tallinn
             }
-        } else if (trackPolylines.value.length === 0) {
-            currentMapInstance.setView([59.4370, 24.7536], 10);
+        } else {
+            currentMap.setView([59.4370, 24.7536], 7); // tallinn (no valid tracks to draw, back to default)
         }
     } else {
-        currentMapInstance.setView([59.4370, 24.7536], 10);
+        currentMap.setView([59.4370, 24.7536], 7); // tallinn (no tracks provided, back to default)
     }
-};
-
-const getRandomColor = (index?: number) => {
-    const colors = ['blue', 'red', 'green', 'purple', 'orange', 'teal', 'maroon', 'navy', 'lime', 'fuchsia'];
-    if (index !== undefined) {
-        return colors[index % colors.length]; 
-    }
-    return colors[Math.floor(Math.random() * colors.length)];
 };
 
 onUnmounted(() => {
-    if (leafletMap.value) {
-        console.log("Removing map instance.");
+    if (leafletMap.value){
         leafletMap.value.remove();
         leafletMap.value = null;
     }
+    tracksLayerGroup.value = null;
 });
 
 </script>
 
 <template>
-  <div ref="mapContainerRef" id="map-display-container" style="height: 100%; width: 100%;">
+    <div ref="mapContainerRef" id="map-display-container-concise" style="height: 100%; width: 100%;">
     </div>
 </template>
 
 <style scoped>
-#map-display-container {
-  background-color: #e0e0e0; 
+#map-display-container-concise {
+  background-color: #f0f0f0; 
+  border: 1px solid #ccc;    
 }
 </style>

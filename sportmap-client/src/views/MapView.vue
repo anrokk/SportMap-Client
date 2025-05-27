@@ -95,7 +95,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="map-view-controller">
+    <div class="map-view-container">
       <aside class="sidebar">
         <h2>GPS Tracks</h2>
         <div v-if="isLoadingSessions" class="loading-message">Loading sessions...</div>
@@ -133,7 +133,7 @@ onUnmounted(() => {
         </button>
       </aside>
 
-      <section class="map-selection">
+      <section class="map-section">
         <div v-if="isLoadingLocations && selectedSessionId" class="loading-overlay">Loading track data...</div>
         <MapDisplay :tracks="trackCoordinatesForMap" />
         <div v-if="selectedSessionId && !isLoadingLocations && trackCoordinatesForMap.length === 0 && (!gpsDataStore.selectedSessionLocations || gpsDataStore.selectedSessionLocations.length === 0)" class="info-message">
@@ -259,7 +259,7 @@ onUnmounted(() => {
   background-color: #f8d7da;
   border: 1px solid #f5c2c7;
   border-radius: 0.25rem;
-  margin: 0.5rem; /* Add some margin if it appears in sidebar */
+  margin: 0.5rem; 
 }
 .info-message {
   color: #0c5460;

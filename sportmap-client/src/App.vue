@@ -20,7 +20,7 @@ const handleLogout = () => {
 <template>
   <header class="app-header">
     <div class="logo-container">
-      <RouterLink to="/" class="app-title">SportMap Client</RouterLink>
+      <RouterLink to="/" class="app-title">SportMap</RouterLink>
     </div>
     <nav class="navigation-links">
       <RouterLink to="/">Home</RouterLink>
@@ -41,7 +41,7 @@ const handleLogout = () => {
   </main>
 
   <footer class="app-footer">
-    <p>&copy; {{ new Date().getFullYear() }} SportMap Client. Andreas Erich Rokk 233142IADB</p>
+    <p>&copy; {{ new Date().getFullYear() }} SportMap. Andreas Erich Rokk 233142IADB</p>
   </footer>  
 </template>
 
