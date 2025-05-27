@@ -5,6 +5,7 @@ import RegisterView from '@/views/RegisterView.vue'
 import MapView from '@/views/MapView.vue' 
 
 import { useAuthStore } from '@/stores/auth'
+import CreateTrackView from '@/views/CreateTrackView.vue';
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -31,6 +32,12 @@ const routes: Array<RouteRecordRaw> = [
     component: MapView,
     meta: { requiresAuth: true } 
   },
+  {
+    path: '/tracks/create',
+    name: 'createTrack',
+    component: CreateTrackView,
+    meta: { requiresAuth: true }
+  }
 ];
 
 const router = createRouter({

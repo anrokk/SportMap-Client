@@ -26,6 +26,7 @@ const handleLogout = () => {
       <RouterLink to="/">Home</RouterLink>
       <template v-if="isAuthenticated">
         <RouterLink to="/map">Map View</RouterLink>
+        <RouterLink to="/tracks/create">Create New Track</RouterLink>
         <span class="user-greeting" v-if="authStore.user">Hi, {{ userDisplayName }}!</span>
         <button @click="handleLogout" class="logout-button">Logout</button>
       </template>
