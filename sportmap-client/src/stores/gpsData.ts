@@ -5,15 +5,18 @@ import type {
     GpsSessionView,
     GpsLocation,
     GpsSessionCreate,
-    GpsSessionUpdate
+    GpsSessionUpdate,
+    GpsSessionType 
 } from '@/types';
 
 export interface GpsDataStore {
     sessions: GpsSessionView[];
     selectedSession: GpsSession | null;
     selectedSessionLocations: GpsLocation[];
+    sessionTypes: GpsSessionType[];
     isLoadingSessions: boolean;
     isLoadingLocations: boolean;
+    isLoadingSessionTypes: boolean;
     error: string | null;
 }
 
@@ -22,8 +25,10 @@ export const useGpsDataStore = defineStore('gpsData', {
         sessions: [],
         selectedSession: null,
         selectedSessionLocations: [],
+        sessionTypes: [],
         isLoadingSessions: false,
         isLoadingLocations: false,
+        isLoadingSessionTypes: false,
         error: null
     }),
 
@@ -76,6 +81,20 @@ export const useGpsDataStore = defineStore('gpsData', {
                 this.selectedSessionLocations = [];
             } finally {
                 this.isLoadingLocations = false;
+            }
+        },
+
+        async fetchGpsSessionTypes(){
+            this.isLoadingSessionTypes = true;
+            this.error = null;
+            try {
+                const response = await sportMapApiService.getGpsSessionTypes();
+                this.sessionTypes = response.data;
+            } catch (err: any){
+                this.error = err.message || 'Failed to fetch GPS session types';
+                this.sessionTypes = [];
+            } finally{
+                this.isLoadingSessionTypes = false;
             }
         },
 

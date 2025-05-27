@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useGpsDataStore } from '@/stores/gpsData';
 import { useAuthStore } from '@/stores/auth';
 import MapDisplay from '@/components/MapDisplay.vue';
+import type { GpsSessionView, GpsSessionType } from '@/types';
 
 const gpsDataStore = useGpsDataStore();
 const authStore = useAuthStore();
@@ -11,9 +12,13 @@ const selectedSessionId = ref<string | null>(null);
 const trackUpdateTimer = ref<number | null>(null);
 const updateIntervalMs = ref(10000);
 
+const selectedSessionTypeId = ref<string>('');
+const availableSessionTypes = computed(() => gpsDataStore.sessionTypes);
+
 const sessions = computed(() => gpsDataStore.sessions);
 const isLoadingSessions = computed(() => gpsDataStore.isLoadingSessions);
 const isLoadingLocations = computed(() => gpsDataStore.isLoadingLocations);
+const isLoadingSessionTypes = computed(() => gpsDataStore.isLoadingSessionTypes);
 
 const trackCoordinatesForMap = computed(() => {
   if (gpsDataStore.selectedSessionLocations && gpsDataStore.selectedSessionLocations.length > 0){
@@ -36,9 +41,27 @@ const getSessionTypeName = (typeJsonString: string | null | undefined): string =
   }
 }
 
+const filteredSessions = computed(() => {
+  if (!selectedSessionTypeId.value){
+    return sessions.value;
+  }
+  const selectedTypeObject = availableSessionTypes.value.find(type => type.id === selectedSessionTypeId.value);
+  if (!selectedTypeObject){
+    return sessions.value;
+  }
+
+  const filterTypeName = getSessionTypeName(selectedTypeObject.name);
+
+  return sessions.value.filter(session => {
+    const sessionTypeName = getSessionTypeName(session.gpsSessionType);
+    return sessionTypeName === filterTypeName;
+  });
+});
+
 onMounted(async () => {
   if (authStore.isAuthenticated){
     await gpsDataStore.fetchGpsSessions();
+    await gpsDataStore.fetchGpsSessionTypes();
   } else {
     console.warn('User is not authenticated, cannot fetch GPS sessions.');
   }
@@ -97,13 +120,24 @@ onUnmounted(() => {
 <template>
     <div class="map-view-container">
       <aside class="sidebar">
-        <h2>GPS Tracks</h2>
+        <h2>Tracks</h2>
+
+        <div class="filter-group">
+        <label for="sessionTypeFilter">Filter by Type:</label>
+        <select id="sessionTypeFilter" v-model="selectedSessionTypeId" class="filter-select">
+          <option value="">All Types</option>
+          <option v-for="type in availableSessionTypes" :key="type.id" :value="type.id">
+            {{ getSessionTypeName(type.name) }} </option>
+        </select>
+        <div v-if="isLoadingSessionTypes" class="loading-small">Loading types...</div>
+        </div>
+
         <div v-if="isLoadingSessions" class="loading-message">Loading sessions...</div>
         <div v-if="apiError && !isLoadingSessions" class="error-message">Error: {{ apiError }}</div>
 
-        <ul v-if="!isLoadingSessions && sessions.length > 0" class="session-list">
+        <ul v-if="!isLoadingSessions && filteredSessions.length > 0" class="session-list">
           <li 
-              v-for="session in sessions"
+              v-for="session in filteredSessions"
               :key="session.id"
               @click="selectSession(session.id)"
               :class="{ 'selected-session': selectedSessionId === session.id }"
@@ -122,12 +156,17 @@ onUnmounted(() => {
               <small v-if="session.userFirstLastName">By: {{ session.userFirstLastName }}</small>
               <br />
               <small v-if="session.distance != null">Distance: {{ (session.distance / 1000).toFixed(2)  }} km</small>
-            
           </li>
         </ul>
+
+        <p v-if="!isLoadingSessions && filteredSessions.length === 0 && !apiError && sessions.length > 0 && selectedSessionTypeId !== ''">
+          No sessions match your filter criteria.
+        </p>
+
         <p v-if="!isLoadingSessions && sessions.length === 0 && !apiError">
           No GPS sessions found.
         </p>
+
         <button v-if="selectedSessionId" @click="selectSession(null)" class="clear-selection-button">
           Clear Selected Track
         </button>
@@ -151,17 +190,18 @@ onUnmounted(() => {
   display: flex;
   height: calc(100vh - 130px); 
   max-height: calc(100vh - 130px);
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .sidebar {
-  width: 320px; 
+  width: 320px;
   padding: 1rem;
-  border-right: 1px solid #dee2e6; 
-  overflow-y: auto; 
-  background-color: #f8f9fa; 
+  border-right: 1px solid #dee2e6;
+  overflow-y: auto;
+  background-color: #f8f9fa;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
 }
 
 .sidebar h2 {
@@ -171,21 +211,35 @@ onUnmounted(() => {
   color: #343a40;
 }
 
-.filter-input {
-  width: calc(100% - 1rem); 
-  padding: 0.6rem;
+.filter-group {
   margin-bottom: 1rem;
+}
+.filter-group label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+.filter-select {
+  width: 100%;
+  padding: 0.5rem;
   border: 1px solid #ced4da;
   border-radius: 0.25rem;
   box-sizing: border-box;
+  background-color: white;
+}
+.loading-small {
+    font-size: 0.8em;
+    color: #6c757d;
+    margin-top: 0.25rem;
 }
 
 .session-list {
   list-style-type: none;
   padding: 0;
   margin: 0;
-  flex-grow: 1; 
-  overflow-y: auto; 
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 .session-item {
@@ -208,7 +262,7 @@ onUnmounted(() => {
   color: white;
 }
 .session-item.selected-session small {
-  color: #e0e0e0; 
+  color: #e0e0e0;
 }
 
 .session-item strong {
@@ -219,7 +273,7 @@ onUnmounted(() => {
 .session-item small {
   font-size: 0.8rem;
   color: #6c757d;
-  display: block; 
+  display: block;
   line-height: 1.4;
 }
 
@@ -232,21 +286,23 @@ onUnmounted(() => {
   border-radius: 0.25rem;
   cursor: pointer;
   width: 100%;
+  flex-shrink: 0;
 }
 .clear-selection-button:hover {
   background-color: #5a6268;
 }
 
-
 .map-section {
-  flex-grow: 1; 
-  position: relative; 
-  display: flex; 
+  flex-grow: 1;
+  position: relative;
+  display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
-:deep(#map-display-container) { 
+.map-section > :deep(#map-display-container-concise) {
     flex-grow: 1;
+    min-height: 0;
 }
 
 
@@ -259,7 +315,7 @@ onUnmounted(() => {
   background-color: #f8d7da;
   border: 1px solid #f5c2c7;
   border-radius: 0.25rem;
-  margin: 0.5rem; 
+  margin: 0.5rem;
 }
 .info-message {
   color: #0c5460;
@@ -280,7 +336,7 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10; 
+  z-index: 10;
   font-size: 1.2rem;
   color: #333;
 }
