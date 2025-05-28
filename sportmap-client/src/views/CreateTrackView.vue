@@ -103,12 +103,12 @@ const handleSubmit = async () => {
                 </div>
 
                 <div class="form-group">
-                    <label for="paceMin">Min pace (min/km)</label>
+                    <label for="paceMin">Min pace (km/h)</label>
                     <input type="number" step="0.01" id="paceMin" v-model.number="paceMin" placeholder="Optional" :disabled="isLoading" />
                 </div>
 
                 <div class="form-group">
-                    <label for="paceMax">Max pace (min/km)</label>
+                    <label for="paceMax">Max pace (km/h)</label>
                     <input type="number" step="0.01" id="paceMax" v-model.number="paceMax" placeholder="Optional" :disabled="isLoading" />
                 </div>
 
