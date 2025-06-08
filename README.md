@@ -1,6 +1,6 @@
 # 🗺️ SportMap Client
 
-A single-page web application built to visualize GPS tracks in real time using [Leaflet.js](https://leafletjs.com/). This project integrates with the public SportMap API backend at [https://sportmap.akaver.com](https://sportmap.akaver.com/swagger/index.html).
+A single-page web application built to visualize GPS tracks in real time using [Leaflet.js](https://leafletjs.com/). This project is part of a university assignment that connects to the public backend at [sportmap.akaver.com](https://sportmap.akaver.com/swagger/index.html), which simulates live GPS tracking from mobile devices.
 
 ## 🌐 Live Demo
 
@@ -13,7 +13,7 @@ https://enos.itcollege.ee/~anrokk/sportmap-client
 
 ## 🔧 Features
 
-- 📍 **Interactive Map** using Leaflet
+- 📍 **Interactive Map** view using Leaflet
 - 📊 **Track Visualization**: Display selected GPS tracks on the map with polylines
 - ♻️ **Live Updates**: Automatically refreshes map data every 10 seconds (configurable)
 - 🔍 **Track Filtering**: Filter tracks by their type (Running, Cycling etc.)
