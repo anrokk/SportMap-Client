@@ -14,9 +14,9 @@ https://enos.itcollege.ee/~anrokk/sportmap-client
 ## 🔧 Features
 
 - 📍 **Interactive Map** using Leaflet
-- 📊 **Track Visualization**: Display selected GPS tracks on the map
-- ♻️ **Live Updates**: Automatically refreshes map data every _X_ seconds (configurable)
-- 🔍 **Track Filtering**: Select from available tracks to visualize
+- 📊 **Track Visualization**: Display selected GPS tracks on the map with polylines
+- ♻️ **Live Updates**: Automatically refreshes map data every 10 seconds (configurable)
+- 🔍 **Track Filtering**: Filter tracks by their type (Running, Cycling etc.)
 - 🔐 **User Authentication**: Logged-in users can view and manage their own tracks
 
 ---
