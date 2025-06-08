@@ -1,6 +1,6 @@
 # 🗺️ SportMap Client
 
-A single-page web application built to visualize GPS tracks in real time using [Leaflet.js](https://leafletjs.com/). This project is part of a university assignment that connects to the public backend at [sportmap.akaver.com](https://sportmap.akaver.com/swagger/index.html), which simulates live GPS tracking from mobile devices.
+A single-page web application built to visualize GPS tracks in real time using [Leaflet.js](https://leafletjs.com/). This project is part of a university assignment that connects to the public backend at sportmap.akaver.com, a RESTful API documented with Swagger (OpenAPI). The backend simulates live GPS tracking from mobile devices.
 
 ## 🌐 Live Demo
 
