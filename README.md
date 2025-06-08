@@ -23,11 +23,10 @@ https://enos.itcollege.ee/~anrokk/sportmap-client
 
 ## 📦 Tech Stack
 
-- **JavaScript**
+- **TypeScript**
+- **Vue.js**
 - **Leaflet.js**
-- **HTML + CSS**
-- **Fetch API**
+- **Axios**
+- **Pinia**
 - **Token-based Authentication**
-- Hosted via `enos.itcollege.ee`
-
----
+- **REST API**
